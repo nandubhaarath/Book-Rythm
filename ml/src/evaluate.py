@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     # Load the trained weights back into a fresh model.
     model = EmotionClassifier(vocab_size=tok.vocab_size()).to(device)
-    model.load_state_dict(torch.load("models/emotion_model.pt"))
+    model.load_state_dict(torch.load("models/emotion_model_weighted.pt"))
 
     predictions, truths = collect_predictions(model, val_loader, device)
 

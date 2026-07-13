@@ -14,11 +14,25 @@ from model import EmotionClassifier
 from moods import MOODS
 
 # Settings — the knobs you'll tune later.
-EPOCHS = 5              # how many full passes over the training data
-LEARNING_RATE = 0.001   # how big a step the optimiser takes
+EPOCHS = 10             # how many full passes over the training data
+LEARNING_RATE = 0.0003   # how big a step the optimiser takes
 BATCH_SIZE = 64
 
+def compute_class_weights(mood_indices, num_classes=6):
+    # Inverse frequency: rare moods get bigger weights, so mistakes
+    # on them cost the model more.
+    counts = [mood_indices.count(i) for i in range(num_classes)]
+    total = len(mood_indices)
 
+    weights = [total / (num_classes * count) if count > 0 else 0.0
+               for count in counts]
+
+    weights = [total / (num_classes * count) if count > 0 else 0.0
+               for count in counts]
+    # Soften: square root compresses the range while keeping the order.
+    weights = [w ** 0.5 for w in weights]
+
+    return torch.tensor(weights, dtype=torch.float)
 def train_one_epoch(model, loader, loss_fn, optimiser, device):
     model.train()   # tells the model it's in training mode
     total_loss = 0
@@ -101,7 +115,13 @@ if __name__ == "__main__":
     # Build the model and move it to the GPU.
     model = EmotionClassifier(vocab_size=tok.vocab_size()).to(device)
 
-    loss_fn = nn.CrossEntropyLoss()
+# Weight the loss so rare moods aren't ignored.
+    class_weights = compute_class_weights(train_moods).to(device)
+    print("\nClass weights:")
+    for mood, weight in zip(MOODS, class_weights.tolist()):
+        print(f"  {mood:8s}: {weight:.3f}")
+
+    loss_fn = nn.CrossEntropyLoss(weight=class_weights)  
     optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
     print(f"\nStarting training for {EPOCHS} epochs...\n")
@@ -117,5 +137,5 @@ if __name__ == "__main__":
         print(f"  Val   — loss: {val_loss:.4f}  acc: {val_acc:.2%}")
 
     # Save the trained weights so we don't have to retrain every time.
-    torch.save(model.state_dict(), "models/emotion_model.pt")
-    print("\nModel saved to models/emotion_model.pt")
+    torch.save(model.state_dict(), "models/emotion_model_weighted.pt")
+    print("\nModel saved to models/emotion_model_weighted.pt")

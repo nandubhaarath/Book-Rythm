@@ -28,3 +28,14 @@ if __name__ == "__main__":
     print(f"\nSample: {sample}")
     print(f"Encoded: {tok.encode(sample)}")
     print(f"Decoded: {tok.decode(tok.encode(sample))}")
+
+    # How long are comments actually? This decides our padding length.
+    lengths = [len(tok.encode(text)) for text in train_texts]
+    lengths.sort()
+
+    print(f"\nComment lengths (in tokens):")
+    print(f"  Shortest: {lengths[0]}")
+    print(f"  Longest:  {lengths[-1]}")
+    print(f"  Median:   {lengths[len(lengths) // 2]}")
+    # The 95th percentile: 95% of comments are AT MOST this long.
+    print(f"  95th pct: {lengths[int(len(lengths) * 0.95)]}")

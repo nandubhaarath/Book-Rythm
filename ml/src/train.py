@@ -138,4 +138,8 @@ if __name__ == "__main__":
 
     # Save the trained weights so we don't have to retrain every time.
     torch.save(model.state_dict(), "models/emotion_model_weighted.pt")
+
+    tok.save("models/vocab.json")
+    print("Vocabulary saved to models/vocab.json")
+    
     print("\nModel saved to models/emotion_model_weighted.pt")

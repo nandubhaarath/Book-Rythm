@@ -49,6 +49,20 @@ class Tokeniser:
         unk_id = self.word_to_id[UNK_TOKEN]
         return [self.word_to_id.get(word, unk_id)
                 for word in self._tokenise(text)]
+    
+    def save(self, path):
+        # Save the vocabulary so the API can load the EXACT same one.
+        # If the vocab differs at all, every word ID shifts and the
+        # model's predictions become meaningless.
+        import json
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(self.word_to_id, f)
+
+    def load(self, path):
+        import json
+        with open(path, "r", encoding="utf-8") as f:
+            self.word_to_id = json.load(f)
+        self.id_to_word = {int(i): w for w, i in self.word_to_id.items()}
 
     def decode(self, ids):
         # Turn a list of IDs back into words. Handy for sanity-checking.

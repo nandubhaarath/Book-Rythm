@@ -45,14 +45,21 @@ class MoodPredictor:
             probabilities = torch.softmax(logits, dim=1)[0]
 
         mood_index = probabilities.argmax().item()
+        confidence = probabilities[mood_index].item()
+
+        # Below this, the model isn't sure enough to commit to a mood —
+        # fall back to "neutral" rather than a low-confidence guess.
+        thresholded = confidence < 0.5
+        mood = "neutral" if thresholded else MOODS[mood_index]
 
         return {
-            "mood": MOODS[mood_index],
-            "confidence": probabilities[mood_index].item(),
+            "mood": mood,
+            "confidence": confidence,
             "all_scores": {
                 mood: probabilities[i].item()
                 for i, mood in enumerate(MOODS)
             },
+            "thresholded": thresholded,
         }
 
 

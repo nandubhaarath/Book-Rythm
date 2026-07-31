@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+pymupdf
+torch
+numpy
+python-multipart

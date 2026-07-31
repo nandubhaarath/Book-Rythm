@@ -39,3 +39,5 @@ if __name__ == "__main__":
     print(f"  Median:   {lengths[len(lengths) // 2]}")
     # The 95th percentile: 95% of comments are AT MOST this long.
     print(f"  95th pct: {lengths[int(len(lengths) * 0.95)]}")
+
+    tok.save("models/vocab.json")

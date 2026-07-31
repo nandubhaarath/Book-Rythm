@@ -221,3 +221,4 @@ venv/
 ml/models/
 *.pt
 *.pth
+backend/app/data/
